@@ -1,0 +1,16 @@
+{
+    "name": "jaimecarvajal/paymongo-skills-exam",
+    "description": "Paymongo Skills Exam",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jaime Alejandro A. Carjaval II",
+            "email": "jaacarvajal27@gmail.com"
+        }
+    ],
+    "require": {}
+}
