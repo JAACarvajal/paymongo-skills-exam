@@ -12,5 +12,7 @@
             "email": "jaacarvajal27@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "nesbot/carbon": "^2.70"
+    }
 }
