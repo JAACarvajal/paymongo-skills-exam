@@ -6,9 +6,13 @@ use Carbon\Carbon;
 
 class Parking {
     const FLAT_RATE = 40;
+    const ADDITIONAL_CHARGES_PER_HOUR = [
+        'S' => 20,
+        'M' => 60,
+        'L' => 100,
+    ];
 
     public $takenSlots = [];
-    public $entryTimeTrackerList = [];
     public $vehicle;
     public $entryTime;
     public $exitTime;
@@ -67,13 +71,6 @@ class Parking {
     }
 
     /**
-     * Getter for $type
-     */
-    public function getEntryTimeTrackerList() {
-        return $this->entryTimeTrackerList;
-    }
-
-    /**
      * Park vehicle
      */
     public function park($vehicle, $entrance, $entryTime) { 
@@ -85,20 +82,45 @@ class Parking {
     }
 
     /**
-     * Park vehicle
+     * Unpark vehicle
+     * 
+     * @param $parkingSlotIndex
+     * @param $exitTime
      */
     public function unpark($parkingSlotIndex, $exitTime) {
         $parkingSlotType = $this->parkingSlotSizes[$parkingSlotIndex]; // Get the parking slot size/type
-        $entryTime = $this->entryTimeTrackerList[$parkingSlotIndex]; // Get the entry time from $entryTimeTrackerList
+        $entryTime = $this->takenSlots[$parkingSlotIndex]['entry_time']; // Get the entry time from $takenSlots
 
-        // $totalTime = $exitTime - $entryTime;
-        echo self::FLAT_RATE;
+        // Calculate the parking total time, round up always (2.3 => 3, 3.4 => 4)
+        $totalTime = ceil($entryTime->floatDiffInHours($exitTime));
+
+        // Calculate the parking fee
+        $parkingFee = $this->calculateFee($totalTime, $parkingSlotType);
     }
 
     /**
      * Calculate fee of a vehicle
+     * Take note that exceeding hours are charged depending on parking slot size regardless of vehicle size.
      */
-    private function calculateFee() {}
+    private function calculateFee($totalTime, $parkingSlotType) {
+        // If the total time is less than or equal to 3, return the flat rate
+        if ($totalTime <= 3) {
+            return self::FLAT_RATE;
+        }
+
+        $totalParkingFee = self::FLAT_RATE;
+        $additionalFeePerHour = self::ADDITIONAL_CHARGES_PER_HOUR[$parkingSlotType];
+        $additionalTimeSpent = $totalTime - 3;
+
+        $totalParkingFee += $additionalTimeSpent * $additionalFeePerHour;
+
+        print 'Total time: ' . $totalTime . "\r\n";
+        print 'Additional time: ' . $additionalTimeSpent . "\r\n";
+        print 'Additional Rate per hour: ' . $additionalFeePerHour . "\r\n";
+        print 'Total parking fee: ' . $totalParkingFee . "\r\n";
+
+        return $totalParkingFee;
+    }
 
     /**
      * Find the closest parking slot
@@ -119,7 +141,7 @@ class Parking {
              */
             if (
                 $parkingSlotDistanceFromEntrance < $closestSlotDistance &&
-                in_array($index, $this->takenSlots) === false &&
+                array_key_exists($index, $this->takenSlots) === false &&
                 $this->seeVehicleCompatibility($index) === true
             ) {
                 $closestSlotDistance = $parkingSlotDistanceFromEntrance;
@@ -129,8 +151,14 @@ class Parking {
 
         // Add to taken slot array
         if ($closestSlotIndex !== null) {
-            $this->takenSlots[] = $closestSlotIndex;
-            $this->entryTimeTrackerList[$closestSlotIndex] = $this->entryTime->format('Y-m-d h:i:s');
+            $this->takenSlots[$closestSlotIndex] = [
+                'plate_number'      => $this->vehicle->getPlateNumber(),
+                'entry_time'        => $this->entryTime,
+                'parking_slot_type' => $this->parkingSlotSizes[$closestSlotIndex],
+                'entrance'          => $this->entrance,
+            ];
+
+            $this->entryTimeTrackerList[$closestSlotIndex] = $this->entryTime;
             return;
         }        
     }
