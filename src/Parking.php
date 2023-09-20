@@ -13,17 +13,14 @@ class Parking {
     ];
 
     public $takenSlots = [];
+    public $parkingHistory = [];
     public $vehicle;
     public $entryTime;
     public $exitTime;
     public $entrance;
 
     /**
-     * The map of the parking slot. You are welcome to introduce a design that suits your approach. 
-     * One suggested method, however, is to accept a list of tuples corresponding to the distance of each slot from every entry point. 
-     * For example, if your parking system has three (3) entry points. The list of parking spaces may be the following: [(1,4,5), (3,2,3), ...], 
-     * where the integer entry per tuple corresponds to the distance unit from every parking entry point (A, B, C).
-     * 
+     * Parking map
      * [A, B, C]
      * A -> distance from entrance 1
      * B -> distance from entrance 2
@@ -38,11 +35,12 @@ class Parking {
         [2, 9, 5],
         [3, 4, 4],
         [5, 2, 8],
-        [7, 1, 5]
+        [7, 1, 5],
+        [4, 3, 1],
     ];
 
     /**
-     * Parking slot sizes/types
+     * Parking slot sizes/types of slots in parkingMap 
      */
     public $parkingSlotSizes = [
         'L',
@@ -53,71 +51,103 @@ class Parking {
         'M',
         'S',
         'M',
-        'L'
+        'L',
+        'M'
     ];
 
     /**
-     * Getter for $type
-     */
-    public function getType() {
-        return $this->type;
-    }
-
-    /**
-     * Getter for $type
+     * Getter for $takenSlots
      */
     public function getTakenSlots() {
         return $this->takenSlots;
     }
 
     /**
+     * Getter for $parkingHistory
+     */
+    public function getParkingHistory() {
+        return $this->parkingHistory;
+    }
+
+    /**
      * Park vehicle
+     * @param $vehicle
+     * @param $entrance
+     * @param $entryTime
      */
     public function park($vehicle, $entrance, $entryTime) { 
         $this->vehicle = $vehicle;       
         $this->entryTime = $entryTime;
         $this->entrance = $entrance;
-
         $this->findClosestSlot();
     }
 
     /**
      * Unpark vehicle
-     * 
-     * @param $parkingSlotIndex
+     * @param $parkingSlot
      * @param $exitTime
      */
-    public function unpark($parkingSlotIndex, $exitTime) {
-        $parkingSlotType = $this->parkingSlotSizes[$parkingSlotIndex]; // Get the parking slot size/type
-        $entryTime = $this->takenSlots[$parkingSlotIndex]['entry_time']; // Get the entry time from $takenSlots
+    public function unpark($parkingSlot, $exitTime) {
+        // Get parking slot index
+        $parkingSlotIndex = $parkingSlot - 1;
+
+        // Check if a vehice is parked on the parking slot
+        if (array_key_exists($parkingSlotIndex, $this->takenSlots) === false) {
+            print 'No vehicle parked at slot ' . $parkingSlot . "\r\n";
+            return;
+        }
 
         // Calculate the parking total time, round up always (2.3 => 3, 3.4 => 4)
-        $totalTime = ceil($entryTime->floatDiffInHours($exitTime));
+        $totalTime = ceil($this->takenSlots[$parkingSlotIndex]['entry_time']->floatDiffInHours($exitTime));
 
         // Calculate the parking fee
-        $parkingFee = $this->calculateFee($totalTime, $parkingSlotType);
+        $this->calculateFee($totalTime, $parkingSlotIndex);
+
+        // Record parking
+        $this->parkingHistory[$this->takenSlots[$parkingSlotIndex]['plate_number']] = $exitTime;
+
+        // Remove the slot from $takenSlots
+        unset($this->takenSlots[$parkingSlotIndex]);
     }
 
     /**
      * Calculate fee of a vehicle
-     * Take note that exceeding hours are charged depending on parking slot size regardless of vehicle size.
+     * @param $totalTime
+     * @param $parkingSlotType
      */
-    private function calculateFee($totalTime, $parkingSlotType) {
+    private function calculateFee($totalTime, $parkingSlotIndex) {
+        $parkingSlotType = $this->parkingSlotSizes[$parkingSlotIndex]; // Get the parking slot size/type
+        $totalParkingFee = self::FLAT_RATE; // Set initial fee to flat rate
+        $additionalFeePerHour = self::ADDITIONAL_CHARGES_PER_HOUR[$parkingSlotType];
+        $additionalTimeSpent = 0;
+        
         // If the total time is less than or equal to 3, return the flat rate
         if ($totalTime <= 3) {
-            return self::FLAT_RATE;
+            return $totalParkingFee;
         }
 
-        $totalParkingFee = self::FLAT_RATE;
-        $additionalFeePerHour = self::ADDITIONAL_CHARGES_PER_HOUR[$parkingSlotType];
-        $additionalTimeSpent = $totalTime - 3;
+        if ($totalTime > 3 && $totalTime <= 24) {
+            $additionalTimeSpent = $totalTime - 3;
+            $totalParkingFee += $additionalTimeSpent * $additionalFeePerHour;
+        }
 
-        $totalParkingFee += $additionalTimeSpent * $additionalFeePerHour;
+        if ($totalTime > 24) {
+            $fullDayCount = floor($totalTime / 24);
+            $totalParkingFee += 5000 * $fullDayCount;
+            $additionalTimeSpent = $totalTime - ($fullDayCount * 24);
+            $totalParkingFee += $additionalTimeSpent * $additionalFeePerHour;
+        }
+        
+        $vehicleParked = $this->takenSlots[$parkingSlotIndex]['plate_number'];
 
+        print "-------------------------------- \r\n";
+        print 'Vehicle: ' . $vehicleParked . "\r\n";
+        print 'Parking Slot: ' . $parkingSlotIndex + 1 . "\r\n";
         print 'Total time: ' . $totalTime . "\r\n";
-        print 'Additional time: ' . $additionalTimeSpent . "\r\n";
+        print 'Additional time (rounded up in hours): ' . $additionalTimeSpent . "\r\n";
         print 'Additional Rate per hour: ' . $additionalFeePerHour . "\r\n";
         print 'Total parking fee: ' . $totalParkingFee . "\r\n";
+        print "-------------------------------- \r\n";
 
         return $totalParkingFee;
     }
@@ -127,12 +157,14 @@ class Parking {
      * A vehicle must be assigned a possible and available slot closest to the parking entrance
      */
     private function findClosestSlot() {
-        $entranceIndex = $this->entrance - 1; // Extrance array index
+        // @TODO check parking history
+        $entranceIndex = $this->entrance - 1; // Entrance array index
         $closestSlotDistance = PHP_INT_MAX; // Initially set the parking slot distance to max value
         $closestSlotIndex = null; // Closest slot array index
 
         foreach ($this->parkingMap as $index => $parkingSlotArray) {
-            $parkingSlotDistanceFromEntrance = $parkingSlotArray[$entranceIndex]; // Get the element based from $entrance
+            // Get the distance from the entrance
+            $parkingSlotDistanceFromEntrance = $parkingSlotArray[$entranceIndex]; 
 
             /**
              * Check if the parking slot if closer than the previous AND
@@ -146,8 +178,11 @@ class Parking {
             ) {
                 $closestSlotDistance = $parkingSlotDistanceFromEntrance;
                 $closestSlotIndex = $index;
-            }            
+            }           
         }
+
+        $plateNumber = $this->vehicle->getPlateNumber(); // For displaying
+        $vehicleType = $this->vehicle->getType(); // For displaying
 
         // Add to taken slot array
         if ($closestSlotIndex !== null) {
@@ -158,16 +193,20 @@ class Parking {
                 'entrance'          => $this->entrance,
             ];
 
-            $this->entryTimeTrackerList[$closestSlotIndex] = $this->entryTime;
+            $parkingSlotSize = $this->parkingSlotSizes[$closestSlotIndex]; // For displaying 
+            $closestSlot = $closestSlotIndex + 1; // For displaying
+
+            print "Vehicle $plateNumber ($vehicleType) entered from Entrance $this->entrance and parked at slot $closestSlot ($parkingSlotSize) \r\n";
             return;
-        }        
+        }
+        
+        // If there are no available slots
+        print "Vehicle $plateNumber ($vehicleType) entered from Entrance $this->entrance and was not able to park. \r\n";
     }
 
     /**
      * Returns true if vehicle is compatible
-     * (a) S vehicles can park in SP, MP, and LP parking spaces;
-     * (b) M vehicles can park in MP and LP parking spaces; and
-     * (c) L vehicles can park only in LP parking spaces.
+     * @param $index
      */
     public function seeVehicleCompatibility($index) {
         $vehicleType = $this->vehicle->getType();
