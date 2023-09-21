@@ -24,9 +24,11 @@ $parking->park($vehicle4, 2, Carbon::now());
 $parking->park($vehicle5, 3, Carbon::now());
 $parking->park($vehicle6, 1, Carbon::now());
 
-$parking->unpark(9, Carbon::now()->add(24, 'hours')->add('30', 'minutes'));
+$parking->unpark(9, Carbon::now()->add('30', 'minutes'));
 // $parking->unpark(5, Carbon::now()->add(25, 'hours')->add('30', 'minutes'));
-$parking->park($vehicle2, 2, Carbon::now());
+$parking->park($vehicle2, 2, Carbon::now()->add('30', 'minutes'));
 
+$parking->unpark(9, Carbon::now()->add('30', 'minutes')->add('4', 'hours')); // Vehicle2 will have a total of 5 hours
+$parking->unpark(3, Carbon::now()->add('10', 'hours'));
 // echo '<pre>'; print_r($parking->getTakenSlots()); echo '</pre>';
-echo '<pre>'; print_r($parking->getParkingHistory()); echo '</pre>';
+// echo '<pre>'; print_r($parking->getParkingHistory()); echo '</pre>';
