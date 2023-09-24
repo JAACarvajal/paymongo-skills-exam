@@ -3,9 +3,15 @@
 namespace App;
 
 class ParkingSlot {
+    /**
+     * Parking lot distance from all entrance
+     */
     public $distance;
+
+    /**
+     * Parking lot size
+     */
     public $size;
-    public $isOccupied;
 
     /**
      * Constructor
@@ -22,14 +28,16 @@ class ParkingSlot {
      * Getter for distance
      * @param $index
      */
-    public function getDistance($index = null) {
+    public function getDistance($index = null) : int | array
+    {
         return $index = null ? $this->distance : $this->distance[$index];
     }
 
     /**
      * Getter for size
      */
-    public function getSize() {
+    public function getSize() : string
+    {
         return $this->size;
     }
 }

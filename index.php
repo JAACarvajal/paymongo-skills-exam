@@ -5,7 +5,6 @@ ini_set('display_error', 1);
 
 use Carbon\Carbon;
 
-// Initalize Parking
 $parking = new App\ParkingSystem([
     'S' => 20,
     'M' => 60,
@@ -55,10 +54,11 @@ $parking->park($vehicle4, 2, Carbon::now());
 $parking->park($vehicle5, 3, Carbon::now());
 $parking->park($vehicle6, 1, Carbon::now());
 
+// SCENARIOS
 /**
  * (a) All types of cars pay the flat rate of 40 pesos for the first three (3) hours;
  */
-// $parking->unpark(1, Carbon::now()->add('2', 'hours'));
+$parking->unpark(1, Carbon::now()->add('2', 'hours'));
 
 /**
  * (b) The exceeding hourly rate beyond the initial three (3) hours will be charged as follows:
@@ -66,15 +66,17 @@ $parking->park($vehicle6, 1, Carbon::now());
  * 60/hour for vehicles parked in MP; and
  * 100/hour for vehicles parked in LP
  */
-// $parking->unpark(1, Carbon::now()->add('4', 'hours')); // L
 // $parking->unpark(9, Carbon::now()->add('4', 'hours')); // S
 // $parking->unpark(4, Carbon::now()->add('4', 'hours')); // M
+// $parking->unpark(1, Carbon::now()->add('4', 'hours')); // L
+
 
 /**
  * For parking that exceeds 24 hours, every full 24-hour chunk is charged 5,000 pesos regardless of the parking slot.
  * The remainder hours are charged using the method explained in (b).
  */
 // $parking->unpark(1, Carbon::now()->add('45', 'hours'));
+// $parking->unpark(3, Carbon::now()->add('50', 'hours'));
 
 /**
  * (c) A vehicle leaving the parking complex and returning within one hour based on their exit time must be charged a continuous rate,
@@ -82,7 +84,7 @@ $parking->park($vehicle6, 1, Carbon::now());
  * Otherwise, rates must be implemented as described. 
  * For example, if a vehicle exits at 10:00 and returns at 10:30, the continuous rate must apply.
  */
-// $parking->unpark(1, Carbon::now()->add('30', 'minutes'));
-// $parking->park($vehicle1, 2, Carbon::now()->add('45', 'minutes'));
-// $parking->unpark(1, Carbon::now()->add('1', 'hours'));
+// $parking->unpark(1, Carbon::now()->add('30', 'minutes')); // leave within 1 hour
+// $parking->park($vehicle1, 2, Carbon::now()->add('45', 'minutes')); // Go back after 15 min
+// $parking->unpark(1, Carbon::now()->add('1', 'hours')); // Leave again
 

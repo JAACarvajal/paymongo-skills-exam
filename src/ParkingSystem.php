@@ -4,14 +4,15 @@ namespace App;
 
 use Carbon\Carbon;
 use App\ParkingSlot;
+use App\Vehicle;
 use Exception;
 
 class ParkingSystem {
     // CONSTANTS
-    public const FLAT_RATE = 40;
-    public const FLAT_RATE_TOTAL_HOURS = 3;
-    public const HOURS_PER_DAY = 24;
-    public const FULL_DAY_CHARGE_RATE = 5000;
+    protected const FLAT_RATE = 40;
+    protected const FLAT_RATE_TOTAL_HOURS = 3;
+    protected const HOURS_PER_DAY = 24;
+    protected const FULL_DAY_CHARGE_RATE = 5000;
 
     /**
      * List of taken slots
@@ -63,7 +64,7 @@ class ParkingSystem {
      * @param $parkingSlotSizeList
      * @param $numberOfEntrance
      */
-    function __construct($parkingSlotSizeList, $numberOfEntrance = 3)
+    function __construct(array $parkingSlotSizeList, int $numberOfEntrance = 3)
     {
         $this->additionalChargePerHour = $parkingSlotSizeList;
         $this->parkingSlotSizeList = array_keys($parkingSlotSizeList);
@@ -73,14 +74,16 @@ class ParkingSystem {
     /**
      * Getter for $takenSlots
      */
-    public function getTakenSlots() {
+    public function getTakenSlots() : array
+    {
         return $this->takenSlots;
     }
 
     /**
      * Getter for $parkingHistory
      */
-    public function getParkingHistory() {
+    public function getParkingHistory() : array
+    {
         return $this->parkingHistory;
     }
 
@@ -89,13 +92,13 @@ class ParkingSystem {
      * @param $parkingMap
      * @param $parkingSlotSizes
      */
-    public function initializeParking($parkingMap, $parkingSlotSizes)
+    public function initializeParking(array $parkingMap, array $parkingSlotSizes) : void
     {
         try {
             // Check if parking slot sizes are valid
             foreach ($parkingSlotSizes as $index => $parkingSlotSize) {
                 if (in_array($parkingSlotSize, $this->parkingSlotSizeList) === false) {
-                    throw new Exception('Invalid parking size value.');
+                    throw new Exception('Invalid parking size.');
                 }
             }
 
@@ -126,7 +129,7 @@ class ParkingSystem {
      * @param $entrance
      * @param $entryTime
      */
-    public function park($vehicle, $entrance, $entryTime) : void 
+    public function park(Vehicle $vehicle, int $entrance, Carbon $entryTime) : void 
     { 
         $this->vehicle = $vehicle;
         $this->entryTime = $entryTime;
@@ -146,7 +149,7 @@ class ParkingSystem {
             if (
                 $parkingSlotDistanceFromEntrance < $closestSlotDistance &&
                 array_key_exists($index, $this->takenSlots) === false &&
-                $this->seeVehicleCompatibility($this->parkingMap[$index]) === true
+                $this->checkVehicleCompatibility($this->parkingMap[$index]) === true
             ) {
                 $closestSlotDistance = $parkingSlotDistanceFromEntrance;
                 $closestSlotIndex = $index;
@@ -160,7 +163,7 @@ class ParkingSystem {
         }
         
         // If there are no available slots
-        print "Vehicle " . $this->vehicle->getPlateNumber() . " (" . $this->vehicle->getType() .  ") entered and was not able to park. \r\n";
+        print "Vehicle " . $this->vehicle->getPlateNumber() . " (" . $this->vehicle->getSize() .  ") entered and was not able to park. \r\n";
     }
 
     /**
@@ -168,7 +171,7 @@ class ParkingSystem {
      * @param $parkingSlot
      * @param $exitTime
      */
-    public function unpark($parkingSlot, $exitTime) : void 
+    public function unpark(int $parkingSlot, Carbon $exitTime) : void 
     {
         $parkingSlotIndex = $parkingSlot - 1; // Get parking slot index
         $this->vehicle = $this->takenSlots[$parkingSlotIndex]['vehicle']; // Set the vehicle
@@ -203,7 +206,7 @@ class ParkingSystem {
      * @param $totalTime
      * @param $parkingSlotType
      */
-    private function calculateFee($totalTime, $parkingSlotIndex) : int
+    private function calculateFee(int $totalTime, int $parkingSlotIndex) : int
     {
         $totalParkingFee = self::FLAT_RATE; // Set initial fee to flat rate
         $additionalFeePerHour = $this->additionalChargePerHour[$this->parkingMap[$parkingSlotIndex]->getSize()]; // Get the additional change
@@ -233,7 +236,7 @@ class ParkingSystem {
      * Assign a parking slot
      * @param $closestSlotIndex
      */
-    private function assignSlot($closestSlotIndex) : void 
+    private function assignSlot(int $closestSlotIndex) : void 
     {
         $entryTime = $this->entryTime;
 
@@ -254,16 +257,16 @@ class ParkingSystem {
             'entry_time' => $entryTime,
         ];
 
-        print "Vehicle " . $this->vehicle->getPlateNumber() . " (" . $this->vehicle->getType() . ") entered at " . $this->entryTime->format('h:i:s') . " and parked at slot " . $closestSlotIndex + 1 . " (" . $this->parkingMap[$closestSlotIndex]->getSize() . ") \r\n";
+        print "Vehicle " . $this->vehicle->getPlateNumber() . " (" . $this->vehicle->getSize() . ") entered at " . $this->entryTime->format('h:i:s') . " and parked at slot " . $closestSlotIndex + 1 . " (" . $this->parkingMap[$closestSlotIndex]->getSize() . ") \r\n";
     }
 
     /**
      * Returns true if vehicle is compatible with the parking slot
      * @param $parkingSlot
      */
-    private function seeVehicleCompatibility($parkingSlot) : bool
+    private function checkVehicleCompatibility(ParkingSlot $parkingSlot) : bool
     {
-        $vehicleType = $this->vehicle->getType();
+        $vehicleType = $this->vehicle->getSize();
         $parkingSlotSize = $parkingSlot->getSize();
 
         return (
@@ -278,7 +281,7 @@ class ParkingSystem {
      * @param $parkingSlotIndex
      * @param $totalParkingFee
      */
-    public function print($parkingSlotIndex, $totalParkingFee) : void 
+    private function print(int $parkingSlotIndex, int $totalParkingFee) : void 
     {
         print "\r\n";
         print "EXIT \r\n";

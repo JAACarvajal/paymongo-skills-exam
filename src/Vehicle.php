@@ -2,28 +2,38 @@
 namespace App;
 
 class Vehicle {
-    public $type;
+    /**
+     * Vehicle's size
+     */
+    public $size;
+
+    /**
+     * Vehicle's plate number
+     */
     public $plateNumber;
 
     /**
      * Constructor
      */
-    function __construct($type, $plateNumber) {
-        $this->type = $type;
+    function __construct(string $size, string $plateNumber) 
+    {
+        $this->size = $size;
         $this->plateNumber = $plateNumber;
     }
 
     /**
      * Getter for $type
      */
-    public function getType() {
-        return $this->type;
+    public function getSize() : string
+    {
+        return $this->size;
     }
 
     /**
-     * Getter for $type
+     * Getter for $plateNumber
      */
-    public function getPlateNumber() {
+    public function getPlateNumber() : string
+    {
         return $this->plateNumber;
     }
 }
