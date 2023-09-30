@@ -21,4 +21,5 @@ Route::prefix('parking')->controller(ParkingController::class)->group(function (
     Route::post('/initialize', 'initializeParking');
     Route::post('/park', 'parkVehicle');
     Route::post('/unpark', 'unparkVehicle');
+    Route::delete('/clear', 'clearParking');
 });

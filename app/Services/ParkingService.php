@@ -38,17 +38,17 @@ class ParkingService extends ParkingConstants
 
         return ResponseLibrary::createJSONResponse([
             'message'     => 'success',
-            'taken_slots' => cache('taken_slots')->map(function (Collection $slot, int $parkingSlotNo) use ($parkingMap) {
+            'taken_slots' => cache('taken_slots')->map(function (array $slot, int $parkingSlotNo) use ($parkingMap) {
                 return [
                     'parking_slot' => [
                         'slot_no' => $parkingSlotNo,
                         'size'    => $parkingMap->get($parkingSlotNo - 1)->getSize()
                     ],
                     'vehicle'      => [
-                        'plate_number' => $slot->get('vehicle')->getPlateNumber(),
-                        'size'         => $slot->get('vehicle')->getSize(),
+                        'plate_number' => $slot['plate_number'],
+                        'size'         => $slot['vehicle_size'],
                     ],
-                    'entry_time'   => $slot->get('entry_time')->toDateTimeString()
+                    'entry_time'   => $slot['entry_time']->toDateTimeString()
                 ];
             })
             ->values()
@@ -152,7 +152,7 @@ class ParkingService extends ParkingConstants
                  */
                 if (
                     $parkingSlotDistanceFromEntrance < $closestSlotDistance &&
-                    $takenSlots->has($index) === false &&
+                    $takenSlots->has($index + 1) === false &&
                     $this->checkVehicleCompatibility($parkingMap->get($index)) === true
                 ) {
                     $closestSlotDistance = $parkingSlotDistanceFromEntrance;
@@ -186,7 +186,7 @@ class ParkingService extends ParkingConstants
      */
     public function unparkVehicle(Request $request) : JsonResponse
     {
-        $parkingSlotNo = (int) $request->slot_no; // Get parking slot index
+        $plateNumber = $request->plate_number; // Get plate number
         $exitTime = Carbon::parse($request->exit_time);
 
         try {
@@ -194,15 +194,16 @@ class ParkingService extends ParkingConstants
             $parkingMap = cache('parking_map');
             $takenSlots = cache('taken_slots');
             $parkingHistory = cache('parking_history');
-
+            $parkingSlotNo = $takenSlots->where('plate_number', $plateNumber)->keys()->first(); // Get parking slot no
+            
             // Check if a vehice is parked on the parking slot
             if ($takenSlots->has($parkingSlotNo) === false) {
                 throw new HttpException(ResponseHTTP::HTTP_BAD_REQUEST, 'No parked vehicle.');
             }
 
             $parkingSlotData = $takenSlots->get($parkingSlotNo); // Get parking slot data
-            $startTime = $parkingSlotData->get('entry_time'); // Get start time
-            $this->vehicle = $parkingSlotData->get('vehicle'); // Set the vehicle
+            $startTime = $parkingSlotData['entry_time']; // Get start time
+            $this->vehicle = $parkingSlotData['vehicle']; // Set the vehicle
 
             // Check if start time exceeds exit time
             if ($startTime->floatDiffInSeconds($exitTime, false) < 0) {
@@ -217,7 +218,7 @@ class ParkingService extends ParkingConstants
 
             // Record parking
             cache()->put('parking_history', $parkingHistory->put($this->vehicle->getPlateNumber(), collect([
-                'entry_time' => $takenSlots->get($parkingSlotNo)->get('entry_time'),
+                'entry_time' => $takenSlots->get($parkingSlotNo)['entry_time'],
                 'exit_time'  => $exitTime
             ])));
 
@@ -243,8 +244,24 @@ class ParkingService extends ParkingConstants
             ], ResponseHTTP::HTTP_OK);
         } catch (HttpException $error) {
             return ResponseLibrary::createJSONResponse(['message' => $error->getMessage()], $error->getStatusCode());
+        }    
+    }
+
+    /**
+     * Clear parking
+     * @param $request
+     * 
+     * @return JsonResponse
+     */
+    public function clearParking() : JsonResponse
+    {
+        try {
+            cache()->put('taken_slots', collect([]));
+            cache()->put('parking_history', collect([]));
+            return ResponseLibrary::createJSONResponse(['message' => 'success'], ResponseHTTP::HTTP_OK);
+        } catch (Exception $error) {
+            return ResponseLibrary::createJSONResponse(['message' => $error->getMessage()], ResponseHTTP::HTTP_INTERNAL_SERVER_ERROR); 
         }
-        
     }
 
     /**
@@ -306,10 +323,12 @@ class ParkingService extends ParkingConstants
         }
 
         // Push data to taken slots
-        cache()->put('taken_slots', $takenSlots->put($closestSlotIndex + 1, collect([
-            'vehicle'    => $this->vehicle,
-            'entry_time' => $entryTime
-        ])));
+        cache()->put('taken_slots', $takenSlots->put($closestSlotIndex + 1, [
+            'vehicle'      => $this->vehicle,
+            'plate_number' => $this->vehicle->getPlateNumber(),
+            'vehicle_size' => $this->vehicle->getSize(),
+            'entry_time'   => $entryTime
+        ]));
 
         return ResponseLibrary::createJSONResponse([
             'message'      => 'success',
@@ -355,7 +374,7 @@ class ParkingService extends ParkingConstants
 
         // Loop through taken slots and check if vehicle already exist
         cache('taken_slots')->each(function ($parkingSlotdata, int $parkingSlotNumber) use ($plateNumber, &$isParked) {
-            if ($parkingSlotdata->get('vehicle')->getPlateNumber() === $plateNumber) {
+            if ($parkingSlotdata['vehicle']->getPlateNumber() === $plateNumber) {
                 $isParked = true;
                 return false;
             }

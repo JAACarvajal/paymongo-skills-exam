@@ -64,4 +64,14 @@ class ParkingController extends Controller
     {
         return $this->parkingService->unparkVehicle($this->request);
     }
+
+    /**
+     * Unpark the vehicle
+     * 
+     * @return JsonResponse
+     */
+    public function clearParking() : JsonResponse
+    {
+        return $this->parkingService->clearParking();
+    }
 }
