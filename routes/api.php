@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ParkingController;
 
 Route::prefix('parking')->controller(ParkingController::class)->group(function () {
-    Route::get('/', 'index');
+    Route::get('/taken-slots', 'getTakenSlots');
     Route::post('/initialize', 'initializeParking');
     Route::post('/park', 'parkVehicle');
     Route::post('/unpark', 'unparkVehicle');

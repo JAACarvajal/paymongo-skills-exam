@@ -2,14 +2,13 @@
 
 namespace App\Services;
 
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\Response as ResponseHTTP;
-use Exception;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Carbon\Carbon;
 
-use App\Models\Vehicle;
-use App\Models\ParkingSlot;
+use App\Models\{Vehicle, ParkingSlot};
 use App\Http\Constants\ParkingConstants;
 use App\Libraries\ResponseLibrary;
 
@@ -29,15 +28,22 @@ class ParkingService extends ParkingConstants
     public $entryTime;
 
     /**
+     * Get parking data
      * 
+     * @return JsonResponse
      */
-    public function getParking()
+    public function getTakenSlots(): JsonResponse
     {
+        $parkingMap = cache('parking_map');
+
         return ResponseLibrary::createJSONResponse([
-            'message' => 'success',
-            'data'    => cache('taken_slots')->map(function (Collection $slot, int $parkingSlotNo) {
+            'message'     => 'success',
+            'taken_slots' => cache('taken_slots')->map(function (Collection $slot, int $parkingSlotNo) use ($parkingMap) {
                 return [
-                    'parking_slot' => $parkingSlotNo,
+                    'parking_slot' => [
+                        'slot_no' => $parkingSlotNo,
+                        'size'    => $parkingMap->get($parkingSlotNo - 1)->getSize()
+                    ],
                     'vehicle'      => [
                         'plate_number' => $slot->get('vehicle')->getPlateNumber(),
                         'size'         => $slot->get('vehicle')->getSize(),
@@ -51,10 +57,12 @@ class ParkingService extends ParkingConstants
     }
 
     /**
-     * Initialize parking map
+     * Initialize parking
      * @param $request
+     * 
+     * @return JsonResponse
      */
-    public function initializeParking($request) : JsonResponse
+    public function initializeParking(Request $request) : JsonResponse
     {
         // Get data from request object
         $parkingMapSlots = collect(json_decode($request->parking_map, true));
@@ -68,20 +76,20 @@ class ParkingService extends ParkingConstants
             // Check if parking slot sizes are valid
             $parkingSlotSizes->each(function (string $parkingSlotSize, int $index) use ($parkingSlotSizeList) {
                 if ($parkingSlotSizeList->contains($parkingSlotSize) === false) {
-                    throw new Exception('Invalid parking size.');
+                    throw new HttpException(ResponseHTTP::HTTP_BAD_REQUEST, 'Invalid parking size.');
                 }
             });
 
             // Check if count of parking slot sizes matches the count of parking slots available
             if ($parkingMapSlots->count() !== $parkingSlotSizes->count()) {
-                throw new Exception('The count of parking slot sizes does not match the count of parking slots available.');
+                throw new HttpException(ResponseHTTP::HTTP_BAD_REQUEST, 'The count of parking slot sizes does not match the count of parking slots available.');
             }
 
             // Check if parking slots are valid, if valid, add slot to parkingMap else throw an error
-            $parkingMapSlots->each(function (array $parkingSlotDistance, int $index) use ($parkingSlotSizes, $parkingMap) {
+            $parkingMapSlots->each(function (array $parkingSlotDistance, int $index) use ($parkingSlotSizes, $parkingMap, $numberOfEntrance) {
                 $parkingSlotEntryDistanceCount = count($parkingSlotDistance);
-                if ($parkingSlotEntryDistanceCount !== $numberOfEntrance || $parkingSlotEntryDistanceCount < 3) {
-                    throw new Exception('Invalid parking slot.');
+                if ($parkingSlotEntryDistanceCount !== $numberOfEntrance || $parkingSlotEntryDistanceCount < self::MIN_ENTRY_POINT) {
+                    throw new HttpException(ResponseHTTP::HTTP_BAD_REQUEST, 'Invalid parking slot.');
                 }
 
                 $parkingMap->push(new ParkingSlot($parkingSlotDistance, $parkingSlotSizes[$index]));
@@ -98,119 +106,153 @@ class ParkingService extends ParkingConstants
             cache()->put('additional_charge_per_hour', $additionalChargePerHour);
 
             return ResponseLibrary::createJSONResponse(['message' => 'success']);
-        } catch (Exception $error) {
-            return ResponseLibrary::createJSONResponse(['message' => $error->getMessage()], ResponseHTTP::HTTP_BAD_REQUEST);
+        } catch (HttpException $error) {
+            return ResponseLibrary::createJSONResponse(['message' => $error->getMessage()], $error->getStatusCode());
         }
     }
 
     /**
      * Park vehicle
      * @param $request
+     * 
+     * @return JsonResponse
      */
-    public function parkVehicle($request) : JsonResponse
-    {        
-        // Check if vehicle already parked
-        if ($this->checkExistingVehicle($request->plate_number) === true) {
-            return ResponseLibrary::createJSONResponse(['message' => 'Vehicle already parked.'], ResponseHTTP::HTTP_BAD_REQUEST);
+    public function parkVehicle(Request $request) : JsonResponse
+    {
+        try {
+            // Check if vehicle already parked
+            if ($this->checkExistingVehicle($request->plate_number) === true) {
+                throw new HttpException(ResponseHTTP::HTTP_BAD_REQUEST, 'Vehicle already parked.');
+            }
+
+            // Check if vehicle size is valid
+            if (cache('parking_slot_size_list')->contains($request->vehicle_size) === false) {
+                throw new HttpException(ResponseHTTP::HTTP_BAD_REQUEST, 'Invalid vehicle size.');
+            }
+
+            /* Get data from cache */
+            $parkingMap = cache('parking_map');
+            $takenSlots = cache('taken_slots');
+
+            $this->vehicle = new Vehicle($request->vehicle_size, $request->plate_number); // Create new vehicle
+            $this->entryTime = Carbon::parse($request->entry_time); // Set entry time property
+            $entryPoint = (int) $request->entry_point;
+
+            $closestSlotDistance = PHP_INT_MAX; // Initially set the parking slot distance to max value
+            $closestSlotIndex = null; // Closest slot array index
+
+            foreach ($parkingMap->all() as $index => $parkingSlot) {
+                // Get the distance from the entrance
+                $parkingSlotDistanceFromEntrance = $parkingSlot->getDistance($entryPoint - 1);
+
+                /**
+                 * Check if the parking slot if closer than the previous AND
+                 * If the slot is not in yet taken AND
+                 * If the vehicle type is compatible with the parking slot
+                 */
+                if (
+                    $parkingSlotDistanceFromEntrance < $closestSlotDistance &&
+                    $takenSlots->has($index) === false &&
+                    $this->checkVehicleCompatibility($parkingMap->get($index)) === true
+                ) {
+                    $closestSlotDistance = $parkingSlotDistanceFromEntrance;
+                    $closestSlotIndex = $index;
+                }           
+            }
+
+            // If there is an available slot
+            if ($closestSlotIndex !== null) {
+                return $this->assignSlot($closestSlotIndex);
+            }
+
+            //  Return 404 if there is no availble parking slot
+            return ResponseLibrary::createJSONResponse([
+                'message'      => 'No parking slot found for the vehicle',
+                'vehicle'      => [
+                    'plate_number' => $this->vehicle->getPlateNumber(),
+                    'size'         => $this->vehicle->getSize()
+                ]
+            ], ResponseHTTP::HTTP_NOT_FOUND);
+        } catch (HttpException $error) {
+            return ResponseLibrary::createJSONResponse(['message' => $error->getMessage()], $error->getStatusCode());
         }
-
-        // Check if vehicle size is valid
-        if (cache('parking_slot_size_list')->contains($request->vehicle_size) === false) {
-            return ResponseLibrary::createJSONResponse(['message' => 'Invalid vehicle size.'], ResponseHTTP::HTTP_BAD_REQUEST);
-        }
-
-        /* Get data from cache */
-        $parkingMap = cache('parking_map');
-        $takenSlots = cache('taken_slots');
-
-        $this->vehicle = new Vehicle($request->vehicle_size, $request->plate_number); // Create new vehicle
-        $this->entryTime = Carbon::parse($request->entry_time); // Set entry time property
-        $entryPoint = (int) $request->entry_point;
-
-        $closestSlotDistance = PHP_INT_MAX; // Initially set the parking slot distance to max value
-        $closestSlotIndex = null; // Closest slot array index
-
-        foreach ($parkingMap->all() as $index => $parkingSlot) {
-            // Get the distance from the entrance
-            $parkingSlotDistanceFromEntrance = $parkingSlot->getDistance($entryPoint - 1);
-
-            /**
-             * Check if the parking slot if closer than the previous AND
-             * If the slot is not in yet taken AND
-             * If the vehicle type is compatible with the parking slot
-             */
-            if (
-                $parkingSlotDistanceFromEntrance < $closestSlotDistance &&
-                $takenSlots->has($index) === false &&
-                $this->checkVehicleCompatibility($parkingMap->get($index)) === true
-            ) {
-                $closestSlotDistance = $parkingSlotDistanceFromEntrance;
-                $closestSlotIndex = $index;
-            }           
-        }
-
-        // If there is an available slot
-        if ($closestSlotIndex !== null) {
-            return $this->assignSlot($closestSlotIndex);
-        }
-
-        //  Return if there is no availble parking slot
-        return ResponseLibrary::createJSONResponse([
-            'message' => 'No parking slot found for the vehicle',
-            'vehicle' => [
-                'plate_number' => $this->vehicle->getPlateNumber(),
-                'size'         => $this->vehicle->getSize()
-            ]
-        ], ResponseHTTP::HTTP_NOT_FOUND);
     }
 
     /**
+     * Unpack Vehicle
      * @param $request
+     * 
+     * @return JsonResponse
      */
-    public function unparkVehicle($request) {
-        $takenSlots = cache('taken_slots');
-        $parkingHistory = cache('parking_history');
-        $parkingSlotIndex = (int) $request->slot_no - 1; // Get parking slot index
+    public function unparkVehicle(Request $request) : JsonResponse
+    {
+        $parkingSlotNo = (int) $request->slot_no; // Get parking slot index
         $exitTime = Carbon::parse($request->exit_time);
 
-        // Check if a vehice is parked on the parking slot
-        if ($takenSlots->has($parkingSlotIndex) === false) {
-            return ResponseLibrary::createJSONResponse(['message' => 'No parked vehicle.'], ResponseHTTP::HTTP_BAD_REQUEST);
+        try {
+            // Get data from cache
+            $parkingMap = cache('parking_map');
+            $takenSlots = cache('taken_slots');
+            $parkingHistory = cache('parking_history');
+
+            // Check if a vehice is parked on the parking slot
+            if ($takenSlots->has($parkingSlotNo) === false) {
+                throw new HttpException(ResponseHTTP::HTTP_BAD_REQUEST, 'No parked vehicle.');
+            }
+
+            $parkingSlotData = $takenSlots->get($parkingSlotNo); // Get parking slot data
+            $startTime = $parkingSlotData->get('entry_time'); // Get start time
+            $this->vehicle = $parkingSlotData->get('vehicle'); // Set the vehicle
+
+            // Check if start time exceeds exit time
+            if ($startTime->floatDiffInSeconds($exitTime, false) < 0) {
+                throw new HttpException(ResponseHTTP::HTTP_BAD_REQUEST, 'Exit time cannot be lower than entry time.');
+            }
+
+            // Calculate the parking total time, round up always (2.3 => 3, 3.4 => 4)
+            $totalTime = ceil(round($startTime->floatDiffInHours($exitTime), 2));
+
+            // Calculate the parking fee
+            $totalParkingFee = $this->calculateFee($totalTime, $parkingSlotNo - 1);
+
+            // Record parking
+            cache()->put('parking_history', $parkingHistory->put($this->vehicle->getPlateNumber(), collect([
+                'entry_time' => $takenSlots->get($parkingSlotNo)->get('entry_time'),
+                'exit_time'  => $exitTime
+            ])));
+
+            // Remove vehicle from slot
+            cache()->put('taken_slots', $takenSlots->forget($parkingSlotNo));
+
+            return ResponseLibrary::createJSONResponse([
+                'message'     => 'success',
+                'parking_fee' => [
+                    'amount'     => $totalParkingFee,
+                    'total_hours' => $totalTime
+                ],
+                'vehicle'     => [
+                    'plate_number' => $this->vehicle->getPlateNumber(),
+                    'size'         => $this->vehicle->getSize()
+                ],
+                'parking_slot' => [
+                    'slot_no' => $parkingSlotNo,
+                    'size'    => $parkingMap->get($parkingSlotNo - 1)->getSize()
+                ],
+                'entry_time'   => $startTime->toDateTimeString(),
+                'exit_time'    => $exitTime->toDateTimeString()
+            ], ResponseHTTP::HTTP_OK);
+        } catch (HttpException $error) {
+            return ResponseLibrary::createJSONResponse(['message' => $error->getMessage()], $error->getStatusCode());
         }
-
-        $parkingSlotData = $takenSlots->get($parkingSlotIndex); // Get parking slot data
-        $this->vehicle = $parkingSlotData->get('vehicle'); // Set the vehicle
-
-        // Calculate the parking total time, round up always (2.3 => 3, 3.4 => 4)
-        $totalTime = ceil(round($parkingSlotData->get('entry_time')->floatDiffInHours($exitTime), 2));
-
-        // Calculate the parking fee
-        $totalParkingFee = $this->calculateFee($totalTime, $parkingSlotIndex);
-
-        // Record parking
-        cache()->put('parking_history', $parkingHistory->put($this->vehicle->getPlateNumber(), collect([
-            'entry_time' => $takenSlots->get($parkingSlotIndex)->get('entry_time'),
-            'exit_time'  => $exitTime
-        ])));
-
-        // Remove vehicle from slot
-        cache()->put('taken_slots', $takenSlots->forget($parkingSlotIndex));
-
-        return ResponseLibrary::createJSONResponse([
-            'message'     => 'success',
-            'parking_fee' => $totalParkingFee,
-            'vehicle'     => [
-                'plate_number' => $this->vehicle->getPlateNumber(),
-                'size'         => $this->vehicle->getSize()
-            ],
-            'exit_time'   => $exitTime->toDateTimeString()
-        ], ResponseHTTP::HTTP_OK);
+        
     }
 
     /**
      * Calculate fee of the parking slot
      * @param $totalTime
      * @param $parkingSlotType
+     * 
+     * @return int
      */
     private function calculateFee(int $totalTime, int $parkingSlotIndex) : int
     {
@@ -242,10 +284,13 @@ class ParkingService extends ParkingConstants
     /**
      * Assign a parking slot
      * @param $closestSlotIndex
+     * 
+     * @return JsonResponse
      */
     private function assignSlot(int $closestSlotIndex) : JsonResponse 
     {
         $entryTime = $this->entryTime;
+        $parkingMap = cache('parking_map');
         $parkingHistory = cache('parking_history');
         $takenSlots = cache('taken_slots');
         
@@ -261,26 +306,30 @@ class ParkingService extends ParkingConstants
         }
 
         // Push data to taken slots
-        cache()->put('taken_slots', $takenSlots->put($closestSlotIndex, collect([
+        cache()->put('taken_slots', $takenSlots->put($closestSlotIndex + 1, collect([
             'vehicle'    => $this->vehicle,
             'entry_time' => $entryTime
         ])));
 
         return ResponseLibrary::createJSONResponse([
-            'message' => 'success',
-            'vehicle' => [
+            'message'      => 'success',
+            'vehicle'      => [
                 'plate_number' => $this->vehicle->getPlateNumber(),
                 'size'         => $this->vehicle->getSize(),
                 'entry_time'   => $entryTime->toDateTimeString()
             ],
-            'slot'    => $closestSlotIndex + 1
-
+            'parking_slot' => [
+                'slot_no' => $closestSlotIndex + 1,
+                'size'    => $parkingMap->get($closestSlotIndex)->getSize()
+            ] 
         ]);
     }
 
     /**
      * Returns true if vehicle is compatible with the parking slot
      * @param $parkingSlot
+     * 
+     * @return bool
      */
     private function checkVehicleCompatibility(ParkingSlot $parkingSlot) : bool
     {
@@ -297,18 +346,21 @@ class ParkingService extends ParkingConstants
     /**
      * Check if vehicle is already parked
      * @param $plateNumber
+     * 
+     * @return bool
      */
     private function checkExistingVehicle(string $plateNumber) : bool
     {
-        $exists = false;
+        $isParked = false;
 
-        cache('taken_slots')->each(function ($parkingSlotdata, int $parkingSlotNumber) use ($plateNumber, &$exists) {
+        // Loop through taken slots and check if vehicle already exist
+        cache('taken_slots')->each(function ($parkingSlotdata, int $parkingSlotNumber) use ($plateNumber, &$isParked) {
             if ($parkingSlotdata->get('vehicle')->getPlateNumber() === $plateNumber) {
-                $exists = true;
+                $isParked = true;
                 return false;
             }
         });
 
-        return $exists;
+        return $isParked;
     }
 }

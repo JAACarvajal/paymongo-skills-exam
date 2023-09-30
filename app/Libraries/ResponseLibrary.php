@@ -15,6 +15,6 @@ class ResponseLibrary
      */
     public static function createJSONResponse(array $payload, int $code = 200) : JsonResponse
     {
-        return new JsonResponse($payload, $code);
+        return new JsonResponse(['data' => $payload], $code);
     }
 }
