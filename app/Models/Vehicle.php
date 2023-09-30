@@ -1,7 +1,11 @@
 <?php
-namespace App;
 
-class Vehicle {
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Vehicle extends Model
+{
     /**
      * Vehicle's size
      */

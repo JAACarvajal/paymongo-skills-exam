@@ -1,9 +1,12 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
-class ParkingSlot {
-    /**
+use Illuminate\Database\Eloquent\Model;
+
+class ParkingSlot extends Model
+{
+/**
      * Parking lot distance from all entrance
      */
     public $distance;
