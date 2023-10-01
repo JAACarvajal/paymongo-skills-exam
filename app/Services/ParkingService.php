@@ -322,13 +322,14 @@ class ParkingService extends ParkingConstants
      */
     private function assignSlot(int $closestSlotIndex) : array 
     {
-        $entryTime = $this->entryTime;
+        // Get data from cache
         $parkingMap = cache('parking_map');
         $parkingHistory = cache('parking_history');
         $takenSlots = cache('taken_slots');
-        $plateNumber = $this->vehicle->getPlateNumber();
 
-        $vehicleLatestParkingHistory = $parkingHistory->where('vehicle.plate_number', $plateNumber)->last();
+        $entryTime = $this->entryTime;
+        $plateNumber = $this->vehicle->getPlateNumber();
+        $vehicleLatestParkingHistory = $parkingHistory->where('vehicle.plate_number', $plateNumber)->last(); // Get latest parking history of the vehicle 
 
         /**
          * If vehicle has parking history AND
