@@ -9,7 +9,7 @@
 
 -   ### Windows
 
-    `Pre-requisites are needed.`
+    `Pre-requisites are required.`
 
     1. Clone repository [link](https://github.com/JAACarvajal/paymongo-skills-exam) and go to the directory
     2. Install dependencies
@@ -21,11 +21,15 @@
         ```
         php artisan serve
         ```
-    5. Test server in browser http://localhost:8000/
+    5. Test server in browser http://localhost:8000/ -> localhost will be used for windows
+
+    `NOTE: In postman, {{local_url}} value can be changed to http://localhost:8000/api (default value is api-local.parkingsystem.com)`
 
 -   ### WSL (Ubuntu)
-    1. Install WSL Ubuntu [here](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview)
+
+    1. Install WSL Ubuntu - [follow this guide](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview)
         ```
+        // update packages
         sudo apt update
         ```
     2. Remove Apache and Install NGINX
@@ -40,7 +44,7 @@
         ```
         sudo apt install nginx
         sudo service nginx restart
-        sudo ervice nginx status
+        sudo service nginx status
         ```
     3. Install PHP
         ```
@@ -53,7 +57,9 @@
         ```
     4. Install Memcached
         ```
-        sudo apt-get install -y php-memcached
+        sudo apt install memcached
+        sudo service memcached restart
+        sudo service memcached status
         ```
     5. Install Composer
         ```
@@ -71,25 +77,65 @@
         ```
     7. Change ownership of the project
         ```
-        sudo chmod -R 755 {project_directory}
+        sudo chmod -R 777 .
+        sudo chown -R username:www-data /var/www/paymongo-skills-exam
+        sudo git config --global --add safe.directory /var/www/paymongo-skills-exam
+        sudo service nginx restart
         ```
     8. Install dependencies
         ```
         sudo composer install
         ```
-    9. Create `.env` file (copy contents from `.env.example`)
-    10.
+    9. Install VS code for linux
+        ```
+        sudo snap install --classic code
+        code . // open code
+        ```
+    10. Create `.env` file (copy contents from `.env.example`)
+    11. Add host
+
+        ```
+        cd /etc/nginx/sites-available
+        sudo nano api-local.parkingsystem.com
+        ```
+
+        ```
+        // Paste this
+        server {
+            listen 80;
+            server_name api-local.parkingsystem.com;
+
+            root /var/www/paymongo-skills-exam/public;
+            index index.htm index.html index.php;
+
+            location / {
+                try_files $uri $uri/ /index.php?$query_string;
+            }
+
+            location ~ \.php$ {
+                include snippets/fastcgi-php.conf;
+                fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+            }
+
+            location ~ /\.ht {
+                deny all;
+            }
+        }
+
+        NOTE: Ctrl-O, Enter, Ctrl-X to save file
+        ```
+
+        ```
+        sudo ln -s /etc/nginx/sites-available/api-local.parkingsystem.com /etc/nginx/sites-enabled
+        sudo service nginx restart
+        sudo service nginx status
+        ```
+
+    12. Add 127.0.0.1 api-local.parkingsystem.com to hosts file
+
+    `NOTE: If you have issues on memcached, change the CACHE_DRIVER value in .env to file.`
 
 ## Testing
 
 -   [Postman](https://www.postman.com/downloads/)
-
-## Implementation
-
--   Creational Design Pattern
-    -   Factory Method or Constructor Pattern
--   Dependency Injection
--   Classes
-    -   ParkingSystem
-    -   ParkingSlot
-    -   Vehicle
+-   Import the collection located (paymongo_skills_exam.postman_collection) in the repository and follow the provided steps found in the `Paymongo` directory on how to run each scenario.

@@ -1,0 +1,1319 @@
+{
+	"info": {
+		"_postman_id": "d4e63560-fd8c-4851-8a30-303b73f1071d",
+		"name": "Paymongo",
+		"description": "Each scenario is contained in a directory. Here are the steps on how to run them:\n\n1. Click the directory (i.e. Scenario 1) and click _**Run**_ button on the upper right.\n2. Add your preferred delay (in milliseconds)\n3. Click _**Run Paymongo**_\n4. To view the response of each request, just click on the request item on the list\n    \n\nNOTE:\n\nCollection Runner has a limit of 25 collection runs per month (Doing step 3 is 1 collection run). If the limit has been reached, you can run the requests manually (the sequence is already set per Scenario directory, just run the first request until the last).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4796263"
+	},
+	"item": [
+		{
+			"name": "Skills Exam",
+			"item": [
+				{
+					"name": "Scenario 1",
+					"item": [
+						{
+							"name": "Park Vehicle 1 (S)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "RTY3647",
+											"type": "text"
+										},
+										{
+											"key": "vehicle_size",
+											"value": "S",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "{{time_now}}",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "entry_point",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "2023-10-01 08:00:00",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/park",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"park"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Park Vehicle 2 (M)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "BNE4573",
+											"type": "text"
+										},
+										{
+											"key": "vehicle_size",
+											"value": "M",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "{{time_now}}",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "entry_point",
+											"value": "2",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "2023-10-01 08:00:00",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/park",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"park"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Park Vehicle 3 (L)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "GUH3245",
+											"type": "text"
+										},
+										{
+											"key": "vehicle_size",
+											"value": "L",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "{{time_now}}",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "entry_point",
+											"value": "3",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "2023-10-01 08:00:00",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/park",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"park"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Unpark Vehicle 1",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "RTY3647",
+											"description": "Vehicle plate number",
+											"type": "text"
+										},
+										{
+											"key": "exit_time",
+											"value": "{{after_3_hours}}",
+											"description": "Vehicle exit time",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "exit_time",
+											"value": "2023-10-01 10:59:00",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/unpark",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"unpark"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Unpark Vehicle 2",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "BNE4573",
+											"description": "Vehicle plate number",
+											"type": "text"
+										},
+										{
+											"key": "exit_time",
+											"value": "{{after_3_hours}}",
+											"description": "Vehicle exit time",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "exit_time",
+											"value": "2023-10-01 10:59:00",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/unpark",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"unpark"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Unpark Vehicle 3",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "GUH3245",
+											"description": "Vehicle plate number",
+											"type": "text"
+										},
+										{
+											"key": "exit_time",
+											"value": "{{after_3_hours}}",
+											"description": "Vehicle exit time",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "exit_time",
+											"value": "2023-10-01 10:59:00",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/unpark",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"unpark"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "All types of cars pay the flat rate of 40 pesos for the first three (3) hours."
+				},
+				{
+					"name": "Scenario 2",
+					"item": [
+						{
+							"name": "Park Vehicle 1 (S)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "RTY3647",
+											"type": "text"
+										},
+										{
+											"key": "vehicle_size",
+											"value": "S",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "{{time_now}}",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "entry_point",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "2023-10-01 08:00:00",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/park",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"park"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Park Vehicle 2 (M)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "BNE4573",
+											"type": "text"
+										},
+										{
+											"key": "vehicle_size",
+											"value": "M",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "{{time_now}}",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "entry_point",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "2023-10-01 08:00:00",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/park",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"park"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Park Vehicle 3 (L)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "GUH3245",
+											"type": "text"
+										},
+										{
+											"key": "vehicle_size",
+											"value": "S",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "{{time_now}}",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "entry_point",
+											"value": "2",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "2023-10-01 08:00:00",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/park",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"park"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Unpark Vehicle 1",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "RTY3647",
+											"description": "Vehicle plate number",
+											"type": "text"
+										},
+										{
+											"key": "exit_time",
+											"value": "{{after_3.5_hours}}",
+											"description": "Vehicle exit time",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "exit_time",
+											"value": "2023-10-01 17:00:00",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/unpark",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"unpark"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Unpark Vehicle 2",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "BNE4573",
+											"description": "Vehicle plate number",
+											"type": "text"
+										},
+										{
+											"key": "exit_time",
+											"value": "{{after_3.5_hours}}",
+											"description": "Vehicle exit time",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "exit_time",
+											"value": "2023-10-01 17:00:00",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/unpark",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"unpark"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Unpark Vehicle 3",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "GUH3245",
+											"description": "Vehicle plate number",
+											"type": "text"
+										},
+										{
+											"key": "exit_time",
+											"value": "{{after_3.5_hours}}",
+											"description": "Vehicle exit time",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "exit_time",
+											"value": "2023-10-01 17:00:00",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/unpark",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"unpark"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "The exceeding hourly rate beyond the initial three (3) hours will be charged as follows:\n\n- 20/hour for vehicles parked in S parking slots;\n    \n- 60/hour for vehicles parked in M parking slots; and\n    \n- 100/hour for vehicles parked in L parking slots"
+				},
+				{
+					"name": "Scenario 3",
+					"item": [
+						{
+							"name": "Park Vehicle 1 (S)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "RTY3647",
+											"type": "text"
+										},
+										{
+											"key": "vehicle_size",
+											"value": "S",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "{{time_now}}",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "entry_point",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "2023-10-01 08:00:00",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/park",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"park"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Park Vehicle 2 (L)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "GUH3245",
+											"type": "text"
+										},
+										{
+											"key": "vehicle_size",
+											"value": "M",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "{{time_now}}",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "entry_point",
+											"value": "2",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "2023-10-01 08:00:00",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/park",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"park"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Unpark Vehicle 1",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "RTY3647",
+											"description": "Vehicle plate number",
+											"type": "text"
+										},
+										{
+											"key": "exit_time",
+											"value": "{{after_25.5_hours}}",
+											"description": "Vehicle exit time",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "exit_time",
+											"value": "2023-10-02 08:20:00",
+											"description": "Vehicle exit time",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/unpark",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"unpark"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Unpark Vehicle 2",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "GUH3245",
+											"description": "Vehicle plate number",
+											"type": "text"
+										},
+										{
+											"key": "exit_time",
+											"value": "{{after_50_hours}}",
+											"description": "Vehicle exit time",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "exit_time",
+											"value": "2023-10-03 10:45:00",
+											"description": "Vehicle exit time",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/unpark",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"unpark"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "For parking that exceeds 24 hours, every full 24-hour chunk is charged 5,000 pesos regardless of the parking slot. The remainder hours are charged using the method explained in **SCENARIO 2**."
+				},
+				{
+					"name": "Scenario 4",
+					"item": [
+						{
+							"name": "Park Vehicle 1 (S)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "RTY3647",
+											"type": "text"
+										},
+										{
+											"key": "vehicle_size",
+											"value": "S",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "2023-10-01 08:00:00",
+											"type": "text"
+										},
+										{
+											"key": "entry_point",
+											"value": "1",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/park",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"park"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Unpark Vehicle 1",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "RTY3647",
+											"description": "Vehicle plate number",
+											"type": "text"
+										},
+										{
+											"key": "exit_time",
+											"value": "2023-10-01 09:00:00",
+											"description": "Vehicle exit time",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/unpark",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"unpark"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Park Vehicle 1 Again",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "RTY3647",
+											"type": "text"
+										},
+										{
+											"key": "vehicle_size",
+											"value": "S",
+											"type": "text"
+										},
+										{
+											"key": "entry_time",
+											"value": "2023-10-01 09:30:00",
+											"type": "text"
+										},
+										{
+											"key": "entry_point",
+											"value": "1",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/park",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"park"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Unpark Vehicle 1 Again",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "plate_number",
+											"value": "RTY3647",
+											"description": "Vehicle plate number",
+											"type": "text"
+										},
+										{
+											"key": "exit_time",
+											"value": "2023-10-01 17:00:00",
+											"description": "Vehicle exit time",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local_url}}/api/parking/unpark",
+									"host": [
+										"{{local_url}}"
+									],
+									"path": [
+										"api",
+										"parking",
+										"unpark"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "A vehicle leaving the parking complex and returning within one hour based on their exit time must be charged a continuous rate, i.e. the vehicle must be considered as if it did not leave. Otherwise, rates must be implemented as described.\n\nFor example, if a vehicle enters at 8:00 AM, exits at 9:00 AM and returns at 9:30 AM, the continuous rate must apply."
+				},
+				{
+					"name": "Get Taken Slots",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{local_url}}/api/parking/taken-slots",
+							"host": [
+								"{{local_url}}"
+							],
+							"path": [
+								"api",
+								"parking",
+								"taken-slots"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Parking History",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{local_url}}/api/parking/history",
+							"host": [
+								"{{local_url}}"
+							],
+							"path": [
+								"api",
+								"parking",
+								"history"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Parking",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "parking_map",
+									"value": "[[1, 2, 3], [3, 4, 5], [2, 5, 6], [4, 7, 3], [5, 4, 2], [2, 9, 5], [3, 4, 4], [5, 2, 8], [7, 1, 5], [4, 3, 1]]",
+									"description": "Parking map slots with 3 entry points",
+									"type": "text"
+								},
+								{
+									"key": "parking_slot_sizes",
+									"value": "[\"L\", \"M\", \"S\", \"M\", \"L\", \"S\", \"L\", \"M\", \"S\", \"L\"]",
+									"description": "Parking slot sizes (should correspond to parking_map)",
+									"type": "text"
+								},
+								{
+									"key": "parking_flat_charges",
+									"value": "{\"S\": 20, \"M\": 60, \"L\": 100}",
+									"description": "Parking flat charges",
+									"type": "text"
+								},
+								{
+									"key": "number_of_entrance",
+									"value": "3",
+									"description": "Entry points",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local_url}}/api/parking/initialize",
+							"host": [
+								"{{local_url}}"
+							],
+							"path": [
+								"api",
+								"parking",
+								"initialize"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Clear Parking",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{local_url}}/api/parking/clear",
+							"host": [
+								"{{local_url}}"
+							],
+							"path": [
+								"api",
+								"parking",
+								"clear"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const moment = require('moment');",
+					"",
+					"pm.globals.set('time_now', moment().format('YYYY-MM-DD HH:mm:ss'));",
+					"pm.globals.set('after_30_minutes', moment().add(30, 'minutes').format('YYYY-MM-DD HH:mm:ss'));",
+					"pm.globals.set('after_1_hours', moment().add(1, 'hours').format('YYYY-MM-DD HH:mm:ss'));",
+					"pm.globals.set('after_2_hours', moment().add(2, 'hours').format('YYYY-MM-DD HH:mm:ss'));",
+					"pm.globals.set('after_3_hours', moment().add(3, 'hours').format('YYYY-MM-DD HH:mm:ss'));",
+					"pm.globals.set('after_3.5_hours', moment().add(3, 'hours').add(30, 'minutes').format('YYYY-MM-DD HH:mm:ss'));",
+					"pm.globals.set('after_24_hours', moment().add(24, 'hours').format('YYYY-MM-DD HH:mm:ss'));",
+					"pm.globals.set('after_25.5_hours', moment().add(25, 'hours').add(30, 'minutes').format('YYYY-MM-DD HH:mm:ss'));",
+					"pm.globals.set('after_48_hours', moment().add(48, 'hours').format('YYYY-MM-DD HH:mm:ss'));",
+					"pm.globals.set('after_50_hours', moment().add(50, 'hours').format('YYYY-MM-DD HH:mm:ss'));",
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "local_url",
+			"value": "http://api-local.parkingsystem.com",
+			"type": "string"
+		},
+		{
+			"key": "local_url",
+			"value": "http://localhost:8000",
+			"type": "string",
+			"disabled": true
+		}
+	]
+}
