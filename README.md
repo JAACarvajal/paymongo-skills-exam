@@ -1,66 +1,95 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Paymongo Skills Exam
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Pre-requisites
 
-## About Laravel
+-   [PHP 8.1.24](https://windows.php.net/download#php-8.1)
+-   [Composer 2.5.8](https://getcomposer.org/download/)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Installation
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   ### Windows
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+    `Pre-requisites are needed.`
 
-## Learning Laravel
+    1. Clone repository [link](https://github.com/JAACarvajal/paymongo-skills-exam) and go to the directory
+    2. Install dependencies
+        ```
+        composer install --ignore-platform-req=ext-fileinfo
+        ```
+    3. Create `.env` file (copy contents from `.env.example`)
+    4. Start server
+        ```
+        php artisan serve
+        ```
+    5. Test server in browser http://localhost:8000/
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+-   ### WSL (Ubuntu)
+    1. Install WSL Ubuntu [here](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview)
+        ```
+        sudo apt update
+        ```
+    2. Remove Apache and Install NGINX
+        ```
+        sudo service apache2 stop
+        sudo apt-get purge apache2 apache2-utils apache2.2-bin apache2-common
+        sudo apt-get purge apache2 apache2-utils apache2-bin apache2.2-common
+        sudo apt-get autoremove
+        whereis apache2
+        sudo rm -rf /etc/apache2
+        ```
+        ```
+        sudo apt install nginx
+        sudo service nginx restart
+        sudo ervice nginx status
+        ```
+    3. Install PHP
+        ```
+        sudo apt install php8.1 php8.1-bcmath php8.1-bz2 php8.1-cgi php8.1-cli php8.1-common php8.1-curl php8.1-dba php8.1-dev php8.1-enchant php8.1-fpm php8.1-gd php8.1-gmp php8.1-imap php8.1-interbase php8.1-intl php8.1-ldap php8.1-mbstring php8.1-mysql php8.1-odbc php8.1-opcache php8.1-pgsql php8.1-phpdbg php8.1-pspell php8.1-readline php8.1-snmp php8.1-soap php8.1-sqlite3 php8.1-sybase php8.1-tidy php8.1-xml php8.1-xmlrpc php8.1-xsl php8.1-zip php8.1-gd php8.1-memcached
+        ```
+        ```
+        sudo service php8.1-fpm restart
+        sudo service php8.1-fpm status
+        php -v
+        ```
+    4. Install Memcached
+        ```
+        sudo apt-get install -y php-memcached
+        ```
+    5. Install Composer
+        ```
+        php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+        php -r "if (hash_file('sha384', 'composer-setup.php') === 'e21205b207c3ff031906575712edab6f13eb0b361f2085f1f1237b7126d785e826a450292b6cfd1d64d92e6563bbde02') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+        php composer-setup.php
+        php -r "unlink('composer-setup.php');"
+        sudo mv composer.phar /usr/local/bin/composer
+        composer -v
+        ```
+    6. Clone Clone repository [link](https://github.com/JAACarvajal/paymongo-skills-exam)
+        ```
+        cd /var/www
+        git clone {repo}
+        ```
+    7. Change ownership of the project
+        ```
+        sudo chmod -R 755 {project_directory}
+        ```
+    8. Install dependencies
+        ```
+        sudo composer install
+        ```
+    9. Create `.env` file (copy contents from `.env.example`)
+    10.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Testing
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+-   [Postman](https://www.postman.com/downloads/)
 
-## Laravel Sponsors
+## Implementation
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+-   Creational Design Pattern
+    -   Factory Method or Constructor Pattern
+-   Dependency Injection
+-   Classes
+    -   ParkingSystem
+    -   ParkingSlot
+    -   Vehicle
