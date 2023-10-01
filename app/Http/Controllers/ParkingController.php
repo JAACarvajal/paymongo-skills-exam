@@ -6,9 +6,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Services\ParkingService;
 
-/**
- * Parking Controller
- */
 class ParkingController extends Controller
 {
     public $parkingService;
@@ -16,6 +13,7 @@ class ParkingController extends Controller
 
     /**
      * Constructor
+     * 
      * @param Request $request
      * @param ParkingService $parkingService
      */
@@ -33,6 +31,16 @@ class ParkingController extends Controller
     public function getTakenSlots() : JsonResponse
     {
         return $this->parkingService->getTakenSlots();
+    }
+
+    /**
+     * Get parking history
+     * 
+     * @return JsonResponse
+     */
+    public function getParkingHistory() : JsonResponse
+    {
+        return $this->parkingService->getParkingHistory();
     }
 
     /**

@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ParkingController;
+use App\Http\Middleware\CheckParkingInitialized;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,11 +16,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-use App\Http\Controllers\ParkingController;
-
-Route::prefix('parking')->controller(ParkingController::class)->group(function () {
+Route::middleware([CheckParkingInitialized::class])->prefix('parking')->controller(ParkingController::class)->group(function () {
+    Route::post('/initialize', 'initializeParking')->withoutMiddleware([CheckParkingInitialized::class]);
     Route::get('/taken-slots', 'getTakenSlots');
-    Route::post('/initialize', 'initializeParking');
+    Route::get('/history', 'getParkingHistory');
     Route::post('/park', 'parkVehicle');
     Route::post('/unpark', 'unparkVehicle');
     Route::delete('/clear', 'clearParking');

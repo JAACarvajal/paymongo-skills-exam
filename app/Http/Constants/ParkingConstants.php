@@ -2,9 +2,6 @@
 
 namespace App\Http\Constants;
 
-/**
- * Parking Constants
- */
 class ParkingConstants
 {
     public const FLAT_RATE = 40;

@@ -8,13 +8,24 @@ class ResponseLibrary
 {
     /**
      * Create JSON response
+     * 
      * @param array $payload
      * @param int $code - defaults to 200
      * 
      * @return JsonResponse
      */
-    public static function createJSONResponse(array $payload, int $code = 200) : JsonResponse
+    public static function createJSONResponse(array $payload = null, string $message = 'success', int $code = 200) : JsonResponse
     {
-        return new JsonResponse(['data' => $payload], $code);
+        $responseData = [];
+
+        if ($message !== null) {
+            $responseData['message'] = $message;
+        }
+
+        if ($payload !== null) {
+            $responseData['data'] = $payload;
+        }
+
+        return new JsonResponse($responseData, $code);
     }
 }

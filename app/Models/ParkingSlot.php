@@ -18,6 +18,7 @@ class ParkingSlot extends Model
 
     /**
      * Constructor
+     * 
      * @param $distance
      * @param $size
      */
@@ -29,6 +30,7 @@ class ParkingSlot extends Model
 
     /**
      * Getter for distance
+     * 
      * @param $index
      */
     public function getDistance($index = null) : int | array
@@ -38,6 +40,8 @@ class ParkingSlot extends Model
 
     /**
      * Getter for size
+     * 
+     * @return string
      */
     public function getSize() : string
     {
