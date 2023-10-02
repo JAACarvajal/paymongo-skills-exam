@@ -1,6 +1,6 @@
 # Paymongo Skills Exam
 
-## Pre-requisites
+## Prerequisites
 
 -   [PHP 8.1.24](https://windows.php.net/download#php-8.1)
 -   [Composer 2.5.8](https://getcomposer.org/download/)
@@ -9,13 +9,18 @@
 
 -   ### Windows
 
-    `Pre-requisites are required.`
+    `Prerequisites are required.`
 
     1. Clone repository [link](https://github.com/JAACarvajal/paymongo-skills-exam) and go to the directory
     2. Install dependencies
+
         ```
+        composer install
+
+        // Try this if error persists
         composer install --ignore-platform-req=ext-fileinfo
         ```
+
     3. Create `.env` file (copy contents from `.env.example`)
     4. Start server
         ```
@@ -23,7 +28,7 @@
         ```
     5. Test server in browser http://localhost:8000/ -> localhost will be used for windows
 
-    `NOTE: In postman, {{local_url}} value can be changed to http://localhost:8000/api (default value is api-local.parkingsystem.com)`
+    `NOTE: In postman, the {{local_url}} variable value can be changed to http://localhost:8000 (default value is http://api-local.parkingsystem.com)`
 
 -   ### WSL (Ubuntu)
 
@@ -70,7 +75,7 @@
         sudo mv composer.phar /usr/local/bin/composer
         composer -v
         ```
-    6. Clone Clone repository [link](https://github.com/JAACarvajal/paymongo-skills-exam)
+    6. Clone repository - [link](https://github.com/JAACarvajal/paymongo-skills-exam)
         ```
         cd /var/www
         git clone {repo}
@@ -88,6 +93,10 @@
         ```
     9. Install VS code for linux
         ```
+        code .
+        ```
+        ```
+        // try this if `code .` does not work
         sudo snap install --classic code
         code . // open code
         ```
@@ -122,20 +131,22 @@
             }
         }
 
-        NOTE: Ctrl-O, Enter, Ctrl-X to save file
+        NOTE: Ctrl-O -> Enter -> Ctrl-X to save file in Nano
         ```
 
         ```
+        // Copy and link the hosts to sites-enabled
         sudo ln -s /etc/nginx/sites-available/api-local.parkingsystem.com /etc/nginx/sites-enabled
         sudo service nginx restart
         sudo service nginx status
         ```
 
-    12. Add 127.0.0.1 api-local.parkingsystem.com to hosts file
+    12. Add `127.0.0.1 api-local.parkingsystem.com` to Windows hosts file
+    13. Test server in browser http://api-local.parkingsystem.com -> this will be used for WSL
 
-    `NOTE: If you have issues on memcached, change the CACHE_DRIVER value in .env to file.`
+    `NOTE: If you have issues using memcached, change the CACHE_DRIVER value in .env to file.`
 
 ## Testing
 
 -   [Postman](https://www.postman.com/downloads/)
--   Import the collection located (paymongo_skills_exam.postman_collection) in the repository and follow the provided steps found in the `Paymongo` directory on how to run each scenario.
+-   Import the collection (paymongo_skills_exam.postman_collection) located in the repository and follow the provided steps found in the `Paymongo` directory on how to run each scenario.
